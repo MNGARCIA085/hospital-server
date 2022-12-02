@@ -1,11 +1,12 @@
 from pydantic import BaseModel
-from typing import List, Union
+from typing import List, Union, Optional
 
 
 
 class User(BaseModel):
     #id: int
     name: str
+    last_name:Optional[str]
 
     class Config:
         orm_mode = True

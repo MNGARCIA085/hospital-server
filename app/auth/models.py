@@ -7,6 +7,7 @@ class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    last_name = Column(String)
     groups = relationship('Groups', secondary='user_groups')
 
 
