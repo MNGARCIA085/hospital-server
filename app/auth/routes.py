@@ -1,9 +1,9 @@
-from fastapi import APIRouter,Depends,HTTPException
+from fastapi import APIRouter,Depends,HTTPException,Query
 from sqlalchemy.orm import Session
 from database.configuration import get_db
 from . import models
 from . import schemas
-
+import functools
 
 
 router = APIRouter(
@@ -26,15 +26,28 @@ def create_user(user: schemas.User, db: Session = Depends(get_db)):
 
 
 
+
+
 @router.get("/users/",response_model=list[schemas.UserOut])
 def read_users(
-            skip: int = 0, 
-            limit: int = 100, 
-            db: Session = Depends(get_db),
-            q: str | None = None):
-        if q:
-                return list(db.query(models.User).filter(models.User.id == q).offset(skip).limit(limit))   
-        return db.query(models.User).offset(skip).limit(limit).all()
+                skip: int = 0, 
+                limit: int = 100, 
+                db: Session = Depends(get_db),
+                q: str | None = None,
+                name: list[str] | None = Query(default=None)
+            ):
+        # filtrado
+        queries = [models.User.id >= 0]
+        if name: # lista
+            queries_name = []
+            for n in name:
+                queries_name.append(models.User.name==n)
+            query_name = functools.reduce(lambda a,b: a|b,queries_name)
+            queries.append(query_name)
+        query = functools.reduce(lambda a,b: (a&b),queries)
+        # respuesta
+        return list(db.query(models.User).filter(query).offset(skip).limit(limit))
+        #return db.query(models.User).offset(skip).limit(limit).all()
 
 
 
@@ -50,6 +63,12 @@ def read_user(user_id,db: Session = Depends(get_db)):
 def update_user(user_id: int,user: schemas.User, db: Session = Depends(get_db)):
     """
     Update an Item stored in the database
+    """
+
+    """
+    hero_data = hero.dict(exclude_unset=True)
+        for key, value in hero_data.items():
+            setattr(db_hero, key, value)
     """
     db_user = db.query(models.User).filter(models.User.id==user_id).first()
     if db_user:
@@ -117,3 +136,6 @@ def create_usergroups(u: int, g: int, db: Session = Depends(get_db)):
 
 
 #https://dassum.medium.com/building-rest-apis-using-fastapi-sqlalchemy-uvicorn-8a163ccf3aa1
+
+
+#https://hackersandslackers.com/database-queries-sqlalchemy-orm/

@@ -1,7 +1,6 @@
 from fastapi import FastAPI,APIRouter
 from auth import routes as auth_routes
-
-
+from config import settings
 
 
 # creo las tablas
@@ -29,5 +28,15 @@ async def root():
 
 
 
+#print(settings)
+# DB---> settings.DB_USER
+
+
+@app.get("/info")
+async def info():
+    return {
+        "app_name": settings.app_name,
+        "admin_email": settings.admin_email,
+    }
 
 
