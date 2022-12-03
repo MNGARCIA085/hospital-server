@@ -37,6 +37,9 @@ from auth import models
 target_metadata = models.Base.metadata
 
 
+from departments import models as dep_models
+target_metadata = dep_models.Base.metadata
+
 
 
 

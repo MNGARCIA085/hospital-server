@@ -27,6 +27,11 @@ def create_user(user: schemas.User, db: Session = Depends(get_db)):
 
 
 
+#iterable para buscar
+
+
+
+
 
 @router.get("/users/",response_model=list[schemas.UserOut])
 def read_users(
@@ -37,11 +42,14 @@ def read_users(
                 name: list[str] | None = Query(default=None)
             ):
         # filtrado
-        queries = [models.User.id >= 0]
+        aux = models.User.id
+        queries = [aux >= 0]
         if name: # lista
             queries_name = []
             for n in name:
-                queries_name.append(models.User.name==n)
+                aux = models.User.name
+                q = aux==n
+                queries_name.append(q)
             query_name = functools.reduce(lambda a,b: a|b,queries_name)
             queries.append(query_name)
         query = functools.reduce(lambda a,b: (a&b),queries)

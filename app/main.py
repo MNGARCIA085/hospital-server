@@ -1,5 +1,6 @@
 from fastapi import FastAPI,APIRouter
 from auth import routes as auth_routes
+from departments import routes as dep_routes
 from config import settings
 
 
@@ -21,6 +22,7 @@ app = FastAPI()
 router = APIRouter()
 
 app.include_router(auth_routes.router,tags=['auth'])
+app.include_router(dep_routes.router,tags=['departments'])
 
 
 
