@@ -48,8 +48,16 @@ def read_users(
             queries_name = []
             for n in name:
                 aux = models.User.name
+
+
+                dict ={
+                    "name":models.User.name
+                }
+                aux = dict['name']
+
+
                 q = aux==n
-                queries_name.append(q)
+                queries_name.append(q) #q
             query_name = functools.reduce(lambda a,b: a|b,queries_name)
             queries.append(query_name)
         query = functools.reduce(lambda a,b: (a&b),queries)
