@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Depends,HTTPException,Query
+from fastapi import APIRouter,Depends,Query
 from sqlalchemy.orm import Session
 from database.configuration import get_db
 from . import models
@@ -15,13 +15,7 @@ router = APIRouter(
 
 
 
-""" SEDES """
-
-@router.post("/locations/",status_code=201) #, response_model=schemas.SedeOut
-def create_department(sede: schemas.Sede, db: Session = Depends(get_db)):
-	return crud.post_department(sede=sede,db=db)
-
-
+# Get
 @router.get("/locations/",response_model=list[schemas.SedeOut])
 def read_departments(
                 skip: int = 0, 
@@ -40,6 +34,11 @@ def read_departments(
         		db=db
         	)
 
+
+# Post
+@router.post("/locations/",status_code=201) #, response_model=schemas.SedeOut
+def create_department(sede: schemas.Sede, db: Session = Depends(get_db)):
+	return crud.post_department(sede=sede,db=db)
 
 
 
@@ -60,3 +59,8 @@ def update_department(dept_id: int,sede:schemas.Sede ,db: Session = Depends(get_
 @router.delete("/locations/{dept_id}",status_code=200) #, response_model=schemas.SedeOut
 def delete_department(dept_id:int,db: Session = Depends(get_db)):
 	return crud.delete_department(dept_id,db)
+
+
+
+
+

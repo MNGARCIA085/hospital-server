@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     admin_email: str = "some mail"
     DB_USER:str
     DB_URL:str
+    DB_URL_TEST:str
 
     class Config:
         env_file = ".env"

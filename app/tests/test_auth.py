@@ -5,14 +5,22 @@ from main import app
 client = TestClient(app)
 
 
-def test_create_user():
+def test_create_user(client): # antes sin client
     response = client.post(
         "/auth/users",
         #headers={"X-Token": "coneofsilence"},
-        json={"name": "user"},
+        json={"name": "nico"},
     )
     assert response.status_code == 201
-    assert response.json()['name'] == "user"
+    assert response.json()['name'] == "nico"
+
+
+
+
+
+
+
+
 
 
 

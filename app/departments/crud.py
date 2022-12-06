@@ -68,7 +68,10 @@ def post_department(sede: schemas.Sede, db: Session = Depends(get_db)):
 
 """ 3. GET by id """
 def get_dept_by_id(sede_id:int,db: Session = Depends(get_db)):
-    return db.query(models.Sede).filter(models.Sede.id==sede_id).first()
+    sede = db.query(models.Sede).filter(models.Sede.id==sede_id).first()
+    if sede:
+        return sede
+    raise HTTPException(status_code=404, detail="Department not found")
 
 
 
@@ -86,12 +89,22 @@ def update_department(sede_id: int, sede: schemas.Sede, db: Session = Depends(ge
         db.refresh(db_sede)
         return db_sede
     else:
-        raise HTTPException(status_code=400, detail="Item not found with the given ID")
+        raise HTTPException(status_code=400, detail="Department with id %s not found" % sede_id)
 
 
 
 """ 5. DELETE """
 def delete_department(sede_id,db: Session = Depends(get_db)):
-    db.query(models.Sede).filter_by(id=sede_id).delete()
-    db.commit()
-    return {'Mensaje':'Registro eliminado'}
+    try:
+        aux = db.query(models.Sede).filter_by(id=sede_id).delete()
+        if aux == 0:
+            raise HTTPException(status_code=400, detail="Department with id %s not found" % sede_id)
+        else:
+            db.commit()
+        return {'Msg':"Department with id %s deleted" % sede_id}
+    except HTTPException as e:
+        raise
+    except Exception as e:
+        #print(e); esto no va para el usuario sino para mi login
+        raise HTTPException(status_code=500, detail="Server Error")
+    return

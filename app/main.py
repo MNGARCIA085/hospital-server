@@ -44,3 +44,11 @@ async def info():
     }
 
 
+
+
+# with docker
+#https://www.patrick-muehlbauer.com/articles/fastapi-with-sqlalchemy
+
+
+# createdb with sqlalchemy
+#https://stackoverflow.com/questions/6506578/how-to-create-a-new-database-using-sqlalchemy
