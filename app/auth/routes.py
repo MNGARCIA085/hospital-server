@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database.configuration import get_db
 from . import models
 from . import schemas
+from . import crud
 import functools
 
 
@@ -13,133 +14,96 @@ router = APIRouter(
 
 
 
+""" 1. USERS """
 
-""" USERS """
-
+# post a new user
 @router.post("/users/",status_code=201) #, response_model=schemas.User
 def create_user(user: schemas.User, db: Session = Depends(get_db)):
-    db_item = models.User(**user.dict())
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
+    crud.post_user(user=user,db=db)
 
 
-
-
-#iterable para buscar
-
-
-
-
-
+# get user
 @router.get("/users/",response_model=list[schemas.UserOut])
 def read_users(
                 skip: int = 0, 
                 limit: int = 100, 
                 db: Session = Depends(get_db),
-                q: str | None = None,
-                name: list[str] | None = Query(default=None)
+                name: str | None = None,
+                last_name: str | None = None,
             ):
-        # filtrado
-        aux = models.User.id
-        queries = [aux >= 0]
-        if name: # lista
-            queries_name = []
-            for n in name:
-                aux = models.User.name
+        return crud.get_users(
+                skip=skip,
+                limit=limit,
+                last_name=last_name,
+                name=name,
+                db=db
+            )
 
 
-                dict ={
-                    "name":models.User.name
-                }
-                aux = dict['name']
-
-
-                q = aux==n
-                queries_name.append(q) #q
-            query_name = functools.reduce(lambda a,b: a|b,queries_name)
-            queries.append(query_name)
-        query = functools.reduce(lambda a,b: (a&b),queries)
-        # respuesta
-        return list(db.query(models.User).filter(query).offset(skip).limit(limit))
-        #return db.query(models.User).offset(skip).limit(limit).all()
-
-
-
-
+# get user by id
 @router.get("/users/{user_id}",response_model=schemas.UserOut) #,
 def read_user(user_id,db: Session = Depends(get_db)):
-    return db.query(models.User).filter(models.User.id==user_id).first()
-
+    return crud.get_user_by_id(user_id,db)
 
 
 # Update an user
 @router.put('/users/{user_id}',response_model=schemas.UserOut,status_code=201)
 def update_user(user_id: int,user: schemas.User, db: Session = Depends(get_db)):
-    """
-    Update an Item stored in the database
-    """
-
-    """
-    hero_data = hero.dict(exclude_unset=True)
-        for key, value in hero_data.items():
-            setattr(db_hero, key, value)
-    """
-    db_user = db.query(models.User).filter(models.User.id==user_id).first()
-    if db_user:
-        db_user.name = user.name
-        db.commit()
-        db.refresh(db_user)
-        return db_user
-    else:
-        raise HTTPException(status_code=400, detail="Item not found with the given ID")
+    return crud.update_user(user_id,user,db)
 
 
-
-
-
+# Delete an user
 @router.delete("/users/{user_id}") #, response_model=schemas.User
 def delete_user(user_id,db: Session = Depends(get_db)):
-    db.query(models.User).filter_by(id=user_id).delete()
-    db.commit()
-    return {'Mensaje':'Registro eliminado'}
+    return crud.delete_user(user_id,db)
 
 
 
+""" 2. GROUPS """
 
 
-
-
-
-
-""" Groups """
+# create a new group
 @router.post("/groups/",status_code=201) #, response_model=schemas.User
 def create_group(group: schemas.Groups, db: Session = Depends(get_db)):
-    db_item = models.Groups(**group.dict())
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
+    return crud.post_group(group,db)
 
 
-
+# list of all groups
 @router.get("/groups/",response_model=list[schemas.GroupsOut])
-def read_departments(
-        skip: int = 0, 
-        limit: int = 100, 
-        db: Session = Depends(get_db),
-        q: str | None = None):
-        if q:
-                aux = db.query(models.Groups).filter(models.Groups.id == q).offset(skip).limit(limit)
-                return list(aux)     
-        return db.query(models.Groups).offset(skip).limit(limit).all()
+def read_groups(
+            skip: int = 0, 
+            limit: int = 100, 
+            db: Session = Depends(get_db),
+        ):
+        return crud.get_groups(skip,limit,db)
 
 
 
 
 
-""" Groups and Users """
+# get group by id
+@router.get("/groups/{group_id}",response_model=schemas.GroupsOut) #,
+def read_user(group_id,db: Session = Depends(get_db)):
+    return crud.get_group_by_id(group_id,db)
+
+
+
+# Delete a group
+@router.delete("/groups/{group_id}") #, response_model=schemas.User
+def delete_user(group_id,db: Session = Depends(get_db)):
+    return crud.delete_user(group_id,db)
+
+
+
+
+
+
+
+""" 3. GROUPS AND USERS """
+
+
+
+""" User and groups """
 @router.post("/groupsUser/")
 def create_usergroups(u: int, g: int, db: Session = Depends(get_db)):
     db_item = models.UserGroups(user_id=u,group_id=g)
@@ -147,6 +111,19 @@ def create_usergroups(u: int, g: int, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+
+
+# agregar usuario y grupos a los que pertenece (le paso un usuario y el id de los grupos)
+@router.post("/userAndGroups/",status_code=201)
+def create_user_and_groups(
+                        user: schemas.User, 
+                        groups: list[int], 
+                        db: Session = Depends(get_db)):
+    return crud.create_user_and_assign(user,groups,db)
+
+
 
 
 
