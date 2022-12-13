@@ -147,6 +147,8 @@ def delete_grouo(group_id,db: Session = Depends(get_db)):
 
 """ 3. USER AND GROUPS """
 
+
+
 # add an user and give him a list of groups by id """
 def create_user_and_assign(
                 user: schemas.User, 
@@ -168,14 +170,28 @@ def create_user_and_assign(
     #    print(exc.SQLAlchemyError)
     except:
         pass # db.rollback()
-    return {'Es':'ok'}
+    return {'Msg':'Ok'}
 
 
 
 # edit the groups for an user
-def edit_groups_per_user():
+def edit_groups_per_user(u: int, g:list[int],db: Session = Depends(get_db)):
+    # borro los viejos
+    db.query(models.UserGroups).filter_by(user_id=u).delete()
+    # inserto
     pass 
 
 
-def delete_groups_per_user():
-    pass 
+def delete_groups_per_user(u: int, groups:list[int],db: Session = Depends(get_db)):
+    # borro
+    #for g in groups:
+    #    db.query(models.UserGroups).filter_by(group_id=g,user_id=u).delete()
+
+    #query = db_session.query(User.id, User.name).filter(User.id.in_([123,456]))
+    db.query(models.UserGroups).filter(models.UserGroups.group_id.in_(groups),models.UserGroups.user_id==u).delete()
+    db.commit()
+    return {'Msg':"Operation succeed"}
+
+
+
+
