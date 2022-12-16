@@ -136,6 +136,16 @@ def delete_groups_per_user(
 
 
 
+# edit groups per user
+@router.put("/userAndGroups/")
+def edit_groups_per_user(
+                        user_id: int, 
+                        groups: list[int], 
+                        db: Session = Depends(get_db)):
+    return crud.edit_groups_per_user(user_id,groups,db)
+
+
+
 #https://dassum.medium.com/building-rest-apis-using-fastapi-sqlalchemy-uvicorn-8a163ccf3aa1
 
 

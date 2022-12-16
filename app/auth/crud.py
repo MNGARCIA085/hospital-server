@@ -175,11 +175,16 @@ def create_user_and_assign(
 
 
 # edit the groups for an user
-def edit_groups_per_user(u: int, g:list[int],db: Session = Depends(get_db)):
+def edit_groups_per_user(u: int, groups:list[int],db: Session = Depends(get_db)):
     # borro los viejos
     db.query(models.UserGroups).filter_by(user_id=u).delete()
     # inserto
-    pass 
+    for g in groups:
+        db_userGroup = models.UserGroups(user_id=u,group_id=g)
+        db.add(db_userGroup)
+    
+    db.commit()
+    return {'Msg':"Operation succeed"} 
 
 
 def delete_groups_per_user(u: int, groups:list[int],db: Session = Depends(get_db)):

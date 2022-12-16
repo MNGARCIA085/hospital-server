@@ -42,6 +42,23 @@ target_metadata = dep_models.Base.metadata
 
 
 
+from staff import models as staff_models
+target_metadata = staff_models.Base.metadata
+
+
+
+
+
+"""
+db metadata
+from myapp import db
+target_metadata = db.metadata
+"""
+
+
+
+
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
