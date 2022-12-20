@@ -28,12 +28,12 @@ def read_doctors(
 
 # post a new doctor
 @router.post("/",status_code=201) #, response_model=schemas.User
-def create_doctor(doctor: schemas.Doctor, db: Session = Depends(get_db)):
-    crud.post_doctor(doctor=doctor,db=db)
+def create_doctor(user_id: int, db: Session = Depends(get_db)):
+    crud.post_doctor(user_id=user_id,db=db)
 
 
 # Get by id
-@router.get("/{doctor_id}",status_code=200) #, response_model=schemas.SedeOut
+@router.get("/{doctor_id}",status_code=200,response_model=schemas.DoctorOut)
 def get_doctor_by_id(doctor_id:int,db: Session = Depends(get_db)):
     return crud.get_doctor_by_id(doctor_id,db)
 

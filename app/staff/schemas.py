@@ -13,8 +13,7 @@ class Especialidad(BaseModel):
 
 # model
 class Doctor(BaseModel):
-    #user: User
-    user_id:int
+    user: User
 
     class Config:
         orm_mode = True
@@ -28,6 +27,7 @@ class EspecialidadOut(Especialidad):
 
     class Config:
         orm_mode = True
+
 
 class DoctorOut(BaseModel):
     id:int

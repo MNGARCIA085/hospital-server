@@ -12,8 +12,8 @@ import functools
 # create new user (tmb. podría hacerlo que si no está inserte el usuario y sino sólo inserta el doctor)
 # por ahora está separado (le voy a mostrar la lista de usuarios de staff y que ingrese el tipo)
 # en realidad como debe ingresar la especialidad esto no es muy necesario
-def post_doctor(doctor: schemas.Doctor, db: Session = Depends(get_db)):
-    db_item = models.Doctor(user_id=doctor.user_id)
+def post_doctor(user_id, db: Session = Depends(get_db)):
+    db_item = models.Doctor(user_id=user_id)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -41,7 +41,7 @@ def get_doctors(
 
 
 
-def get_doctor_by_id(sede_id:int,db: Session = Depends(get_db)):
+def get_doctor_by_id(doctor_id:int,db: Session = Depends(get_db)):
     doc = db.query(models.Doctor).filter(models.Doctor.id==doctor_id).first()
     if doc:
         return doc
