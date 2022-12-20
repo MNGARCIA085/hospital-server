@@ -13,12 +13,7 @@ class Especialidad(Base):
 
 
 
-
-
-
 # Test table
-
-
 class Child(Base):
     __tablename__ = 'child'
     id = Column(Integer,primary_key=True)
@@ -26,26 +21,20 @@ class Child(Base):
     test = Column(String)
 
 
-
-
 # carga horaria
-
 class Doctor(Base):
     __tablename__ = 'doctor'
     id = Column(Integer, primary_key=True)
-
-
     # fk de test
     child_id = Column(Integer, ForeignKey('child.id'))
     child = relationship("Child", backref=backref("doctor", uselist=False, cascade="all,delete"))
-
     # FK A user
     #user = Column(Integer, ForeignKey('user.id'))
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship("User", backref=backref("doctor", uselist=False))
-    
-
     especialidad = relationship('Especialidad', secondary='doctor_especialidades')
+
+
 
 
 class DoctorEspecialidades(Base):

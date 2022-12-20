@@ -2,25 +2,7 @@ from pydantic import BaseModel
 from typing import List, Union, Optional
 from auth.schemas import User
 
-
-
-
-class Child(BaseModel):
-    descripcion:str
-
-    class Config:
-        orm_mode = True
-
-
-
-
-class Doctor(BaseModel):
-    #user: User
-    user_id:int
-
-    class Config:
-        orm_mode = True
-
+""" Base models """
 
 class Especialidad(BaseModel):
     descripcion: str
@@ -29,20 +11,16 @@ class Especialidad(BaseModel):
         orm_mode = True
 
 
-# response models
-class DoctorOut(BaseModel):
-    id:int
-    user:Optional[User]
-
-
+# model
+class Doctor(BaseModel):
+    #user: User
+    user_id:int
 
     class Config:
         orm_mode = True
 
 
-
-
-
+# response models
 
 class EspecialidadOut(Especialidad):
     id:int
@@ -50,3 +28,14 @@ class EspecialidadOut(Especialidad):
 
     class Config:
         orm_mode = True
+
+class DoctorOut(BaseModel):
+    id:int
+    user:Optional[User]
+    especialidad: List[Especialidad]
+
+    class Config:
+        orm_mode = True
+
+
+

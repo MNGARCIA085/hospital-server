@@ -4,7 +4,7 @@ from sqlalchemy import exc
 from database.configuration import get_db
 from staff import models
 from auth.models import User
-from . import schemas
+from staff import schemas
 import functools
 
 
@@ -26,9 +26,6 @@ def get_doctors(
         limit: int = 100,
         db: Session = Depends(get_db),
     ):
-
-
-
     """
     from sqlalchemy import join
     from sqlalchemy.sql import select
@@ -37,9 +34,8 @@ def get_doctors(
     result = conn.execute(stmt)
     result.fetchall()
     """
+    return db.query(models.Doctor).offset(skip).limit(limit).all()
     return db.query(models.Doctor).join(User).offset(skip).limit(limit).all()
-    
-
     return list(db.query(models.Doctor).join(User,User.id == models.Doctor.user, isouter=True).offset(skip).limit(limit).all())
     #return db.query(models.Doctor).join(User).offset(skip).limit(limit).all()
 
