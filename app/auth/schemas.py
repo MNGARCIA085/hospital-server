@@ -23,7 +23,7 @@ class Groups(BaseModel):
 # response models
 class UserOut(User):
     id:int
-    groups: List[Groups]
+    groups: Optional[List[Groups]]
 
 
 class GroupsOut(Groups):

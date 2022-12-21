@@ -17,9 +17,9 @@ router = APIRouter(
 """ 1. USERS """
 
 # post a new user
-@router.post("/users/",status_code=201) #, response_model=schemas.User
+@router.post("/users/",status_code=201,response_model=schemas.UserOut) 
 def create_user(user: schemas.User, db: Session = Depends(get_db)):
-    crud.post_user(user=user,db=db)
+    return crud.post_user(user=user,db=db)
 
 
 # get user

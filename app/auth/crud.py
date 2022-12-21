@@ -11,6 +11,7 @@ import functools
 """ 1. USERS """
 
 
+
 # create new user
 def post_user(user: schemas.User, db: Session = Depends(get_db)):
     db_item = models.User(**user.dict())
