@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from main import app
 
 
-from .fixtures import add_user
+
 
 
 
@@ -16,7 +16,7 @@ def test_create_user(client): # antes sin client
     response = client.post(
         "/auth/users",
         #headers={"X-Token": "coneofsilence"},
-        json={"name": "nico"},
+        json={"name": "nico","last_name":"las"},
     )
 
     assert response.status_code == 201
@@ -74,25 +74,21 @@ def test_get_all_users(client, add_user):
 
 
 
+#from .fixtures import add_user
+
+
+
 # edit an user
 def test_edit_user(client, add_user):
     # inserto un nuevo usuario
     user = add_user(name='nombre',last_name='apellido')
-    print('nico',user.id)
 
     # edito
-
-
-
-    payload = {"name": "string","last_name": "string"}
- 
-
     response = client.put(
-        "/auth/users/{user.id}/",
-        headers={"Content-Type": "application/json"},
-        json=payload,
+        f"/auth/users/{user.id}/",
+        #headers={"Content-Type": "application/json"},
+        json={"name": "string","last_name": "string"},
     )
-    print('algo',response)
     data = response.json()
     assert response.status_code == 201
     #assert data["name"] == 'nombre'
