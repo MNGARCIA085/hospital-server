@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database.configuration import get_db
 from . import models, schemas, crud
 import functools
+from typing import List, Any
 
 
 router = APIRouter(
@@ -76,9 +77,6 @@ def read_groups(
         return crud.get_groups(skip,limit,db)
 
 
-
-
-
 # get group by id
 @router.get("/groups/{group_id}",response_model=schemas.GroupsOut) #,
 def read_user(group_id,db: Session = Depends(get_db)):
@@ -89,7 +87,7 @@ def read_user(group_id,db: Session = Depends(get_db)):
 # Delete a group
 @router.delete("/groups/{group_id}") #, response_model=schemas.User
 def delete_user(group_id,db: Session = Depends(get_db)):
-    return crud.delete_user(group_id,db)
+    return crud.delete_group(group_id,db)
 
 
 
@@ -110,9 +108,6 @@ def create_usergroups(u: int, g: int, db: Session = Depends(get_db)):
     db.refresh(db_item)
     return db_item
 
-
-
-
 # agregar usuario y grupos a los que pertenece (le paso un usuario y el id de los grupos)
 @router.post("/userAndGroups/",status_code=201)
 def create_user_and_groups(
@@ -120,8 +115,6 @@ def create_user_and_groups(
                         groups: list[int], 
                         db: Session = Depends(get_db)):
     return crud.create_user_and_assign(user,groups,db)
-
-
 
 
 # delete groups per user
@@ -134,12 +127,26 @@ def delete_groups_per_user(
 
 
 
+
+
+from pydantic import BaseModel
+class Aux(BaseModel):
+    groups:List[int]
+
+
+from pydantic import BaseModel
+class Aux2(BaseModel):
+    groups:int
+
+
 # edit groups per user
-@router.put("/userAndGroups/")
+@router.put("/userAndGroups/{user_id}",status_code=201)
 def edit_groups_per_user(
-                        user_id: int, 
-                        groups: list[int], 
+                        user_id, 
+                        groups:Aux, 
+                        #groups:Aux2,
                         db: Session = Depends(get_db)):
+    print('ruta',groups)
     return crud.edit_groups_per_user(user_id,groups,db)
 
 

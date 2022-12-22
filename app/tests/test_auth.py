@@ -1,8 +1,10 @@
 from fastapi.testclient import TestClient
 from main import app
-from auth.models import User
+from auth.models import User,Groups
 
 client = TestClient(app)
+
+""" 1. USER """
 
 # create a new user
 def test_create_user(client,db_session): # antes sin client
@@ -66,12 +68,6 @@ def test_get_all_users(client, add_user):
 
 
 
-
-
-#from .fixtures import add_user
-
-
-
 # edit an user
 def test_edit_user(client, add_user, db_session):
     # inserto un nuevo usuario
@@ -107,6 +103,207 @@ def test_delete_user(client, add_user,db_session):
 
 
 
+""" 2. GROUPS """
+
+# create a new group
+def test_create_group(client,db_session): # antes sin client
+    response = client.post(
+        "/auth/groups",
+        json={"name": "grupo"},
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data['name'] == "grupo"
+    assert "id" in data
+    # que efectivamente haya sido ingresado
+    esta = db_session.query(Groups).filter(Groups.id==data['id']).first()
+    assert esta
+
+
+
+# try to create an group with invalida data
+def test_create_group_invalid_data(client):
+    response = client.post(
+        "/auth/groups",
+        json={},
+    )
+    assert response.status_code == 422
+
+
+# inserto un usuario y testeo que haya quedado bien
+def test_get_single_group(client,add_group):
+    
+    # given
+    group = add_group(name='nombre')
+    
+    # when
+    response = client.get(f"/auth/groups/{group.id}/")
+    data = response.json()
+
+    # then
+    assert response.status_code == 200
+    assert data["name"] == "nombre"
+    for key in data.keys():
+        assert key in ["id", "users","name"] # da error si no están todas las claves
+
+
+
+# todos los grupos
+def test_get_all_groups(client, add_group):
+    # given
+    group_one = add_group(name='grupo1')
+    group_two = add_group(name='grupo2')
+    
+    # when
+    response = client.get(f"/auth/groups/")
+    data = response.json()
+
+    # then
+    assert response.status_code == 200
+    assert data[0]["name"] == group_one.name
+    assert data[1]["name"] == group_two.name
+
+
+
+# edit a group (not implemented yet)
+"""
+def test_edit_group(client, add_group, db_session):
+    # inserto un nuevo usuario
+    user = add_group(name='nombre')
+    # edito
+    response = client.put(
+        f"/auth/groups/{user.id}/",
+        json={"name": "nombreEditado"},
+    )
+    data = response.json()
+    assert response.status_code == 201
+    assert data["name"] == 'nombreEditado'
+    # que efectivamente lo haya editado en la base
+    esta = db_session.query(Groups).filter(Groups.id==user.id).first()
+    assert esta.name == 'nombreEditado'
+"""
+
+
+# delete a group
+def test_delete_group(client, add_group,db_session):
+    # inserto un nuevo usuario
+    group = add_group(name='nombre')
+    temp = group.id
+    # borro
+    response = client.delete(
+        f"/auth/groups/{group.id}/",
+    )
+    assert response.status_code == 200
+    # chequeo que efectivamente lo haya borrado
+    esta = db_session.query(Groups).filter(Groups.id==temp).first()
+    assert esta == None
+
+
+
+
+"""" 3. GROUPS AND USERS """
+
+
+def test_add_groups_to_user(client,add_user,add_group):
+    
+    # given
+    user = add_user(name="u1",last_name='a1')
+    group_one = add_group(name='grupo1')
+    group_two = add_group(name='grupo2')
+    listaGroups = [group_one.id,group_two.id]
+    #add_groups_user(user=user.id,groups=listaGroups)
+
+    
+    # when
+    response = client.post(
+        f"/auth/userAndGroups/",
+        json = {
+                "user": {
+                        "name":user.name,
+                        "last_name":user.last_name
+                    }
+                ,
+                "groups":listaGroups
+               }
+    )
+    data = response.json()
+
+
+    # then
+    assert response.status_code == 201
+    assert data['User']['name'] == user.name
+    assert data['Groups'] == listaGroups
+   
+    
+
+
+
+# edit groups per user
+def test_edit_groups_to_user(client,add_user,add_group,add_groups_user):
+    
+    # GIVEN 
+    user = add_user(name="u1",last_name='a1')
+    group_one = add_group(name='grupo1')
+    group_two = add_group(name='grupo2')
+    listaGroups = [group_one.id,group_two.id]
+    add_groups_user(user.id,listaGroups)
+    # new groups
+    group_three = add_group(name='grupo3')
+    group_four = add_group(name='grupo4')
+    nuevosGrupos = [group_three.id, group_four.id]
+
+
+    print(user.id)
+    print(nuevosGrupos)
+
+    aux = f"/auth/userAndGroups?user_id={user.id}"
+    print(aux)
+
+    
+    # WHEN
+    response = client.put(
+        f"/auth/userAndGroups/{user.id}",
+        json = {
+                "groups":nuevosGrupos
+               }
+    )
+    data = response.json()
+    print(data) # imprime ok
+
+
+    # THEN
+    assert response.status_code == 201
+    assert data['Groups'] == listaGroups
+
+
+
+
+# delete groups per user
+
+
+
+
+
+
+
+
+
+
+
+
+# 1,2,3
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -126,39 +323,5 @@ def test_delete_user(client, add_user,db_session):
 #https://blog.j-labs.pl/index.php?page=2017/02/Given-When-Then-pattern-in-unit-tests
 
 
-
-
-"""
-from auth import models
-def test_get_single_user(client, db_session,name='nombre',last_name='vblah'):
-    db_user = models.User(name=name,last_name=last_name)
-    db_session.add(db_user)
-    db_session.commit()
-    resp = client.get(f"/auth/users/{db_user.id}/")
-    assert resp.status_code == 200
-    assert resp.json()["name"] == "nombre"
-"""
-
-
-
-
 #https://cosasdedevs.com/posts/tests-fastapi/
 
-"""
-def test_create_user():
-    response = client.post(
-        "/users/",
-        json={"email": "deadpool@example.com", "password": "chimichangas4life"},
-    )
-    assert response.status_code == 200, response.text
-    data = response.json()
-    assert data["email"] == "deadpool@example.com"
-    assert "id" in data
-    user_id = data["id"]
-
-    response = client.get(f"/users/{user_id}")
-    assert response.status_code == 200, response.text
-    data = response.json()
-    assert data["email"] == "deadpool@example.com"
-    assert data["id"] == user_id
-"""

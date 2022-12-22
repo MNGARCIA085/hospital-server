@@ -114,7 +114,7 @@ def client(
 
 # por modularidad defino ciertas fixtures en otro archivo
 
-from .fixtures import add_user
+from .fixtures import add_user, add_group, add_groups_user
 
 
 

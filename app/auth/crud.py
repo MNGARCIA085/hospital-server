@@ -5,6 +5,7 @@ from database.configuration import get_db
 from . import models
 from . import schemas
 import functools
+from typing import List,Any
 
 
 
@@ -130,7 +131,7 @@ def get_group_by_id(group_id, db: Session = Depends(get_db)):
 
 
 # delete group
-def delete_grouo(group_id,db: Session = Depends(get_db)):
+def delete_group(group_id,db: Session = Depends(get_db)):
     try:
         aux = db.query(models.Groups).filter_by(id=group_id).delete()
         if aux == 0:
@@ -167,25 +168,37 @@ def create_user_and_assign(
                 db_item = models.UserGroups(user_id=u,group_id=g)
                 db.add(db_item)
         db.commit()
+        db.refresh(db_user)
     #except exc.SQLAlchemyError:
     #    print(exc.SQLAlchemyError)
     except:
         pass # db.rollback()
-    return {'Msg':'Ok'}
+    return {'User':db_user,'Groups':groups}
 
 
+
+
+from pydantic import BaseModel
+class Aux(BaseModel):
+    groups:List[int]
 
 # edit the groups for an user
-def edit_groups_per_user(u: int, groups:list[int],db: Session = Depends(get_db)):
+def edit_groups_per_user(u: int, groups:Aux,db: Session = Depends(get_db)):
     # borro los viejos
     db.query(models.UserGroups).filter_by(user_id=u).delete()
     # inserto
-    for g in groups:
+    for g in groups.groups:
         db_userGroup = models.UserGroups(user_id=u,group_id=g)
         db.add(db_userGroup)
-    
     db.commit()
-    return {'Msg':"Operation succeed"} 
+    return {'User':u,'Groups':groups}
+
+
+
+
+
+
+
 
 
 def delete_groups_per_user(u: int, groups:list[int],db: Session = Depends(get_db)):
