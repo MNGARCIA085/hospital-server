@@ -1,9 +1,7 @@
-from fastapi import APIRouter,Depends,HTTPException,Query
+from fastapi import APIRouter,Depends
 from sqlalchemy.orm import Session
 from database.configuration import get_db
-from . import models
-from . import schemas
-from . import crud
+from . import models, schemas, crud
 import functools
 
 

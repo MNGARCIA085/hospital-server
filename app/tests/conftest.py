@@ -112,7 +112,13 @@ def client(
 
 
 
+# por modularidad defino ciertas fixtures en otro archivo
 
+from .fixtures import add_user
+
+
+
+"""
 from auth import models
 @pytest.fixture(scope='function')
 def add_user(db_session): #db_session:db_session
@@ -122,7 +128,7 @@ def add_user(db_session): #db_session:db_session
         db_session.commit()
         return db_user
     return _add_user
-
+"""
 
 
 

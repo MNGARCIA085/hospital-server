@@ -1,18 +1,11 @@
 from fastapi.testclient import TestClient
 from main import app
-
-
-
-
-
+from auth.models import User
 
 client = TestClient(app)
 
-
-
-
 # create a new user
-def test_create_user(client): # antes sin client
+def test_create_user(client,db_session): # antes sin client
     response = client.post(
         "/auth/users",
         #headers={"X-Token": "coneofsilence"},
@@ -23,7 +16,9 @@ def test_create_user(client): # antes sin client
     data = response.json()
     assert data['name'] == "nico"
     assert "id" in data
-    # con len probar que realmente se insertó en las tablas
+    # que efectivamente haya sido ingresado
+    esta = db_session.query(User).filter(User.id==data['id']).first()
+    assert esta
 
 
 
@@ -60,7 +55,6 @@ def test_get_all_users(client, add_user):
     user_one = add_user(name='nombre1',last_name='a1')
     user_two = add_user(name='nombre2',last_name='a2')
     
-
     # when
     response = client.get(f"/auth/users/")
     data = response.json()
@@ -79,19 +73,38 @@ def test_get_all_users(client, add_user):
 
 
 # edit an user
-def test_edit_user(client, add_user):
+def test_edit_user(client, add_user, db_session):
     # inserto un nuevo usuario
     user = add_user(name='nombre',last_name='apellido')
-
     # edito
     response = client.put(
         f"/auth/users/{user.id}/",
-        #headers={"Content-Type": "application/json"},
-        json={"name": "string","last_name": "string"},
+        json={"name": "nombreEditado","last_name": "apellidoEditado"},
     )
     data = response.json()
     assert response.status_code == 201
-    #assert data["name"] == 'nombre'
+    assert data["name"] == 'nombreEditado'
+    # que efectivamente lo haya editado en la base
+    esta = db_session.query(User).filter(User.id==user.id).first()
+    assert esta.name == 'nombreEditado'
+
+
+
+# edit an user
+def test_delete_user(client, add_user,db_session):
+    # inserto un nuevo usuario
+    user = add_user(name='nombre',last_name='apellido')
+    temp = user.id
+    # borro
+    response = client.delete(
+        f"/auth/users/{user.id}/",
+    )
+    assert response.status_code == 200
+    # chequeo que efectivamente lo haya borrado
+    esta = db_session.query(User).filter(User.id==temp).first()
+    assert esta == None
+
+
 
 
 
@@ -107,15 +120,6 @@ def test_edit_user(client, add_user):
 # delete an user
 # inserto,
 # lo borro y me fijo que no esté en la base
-
-
-
-
-
-
-
-
-
 
 
 

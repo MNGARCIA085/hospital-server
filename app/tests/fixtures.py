@@ -2,11 +2,9 @@ import pytest
 from auth import models
 
 
-
-
-# Add an user
+from auth import models
 @pytest.fixture(scope='function')
-def add_user(db_session):
+def add_user(db_session): #db_session:db_session
     def _add_user(name, last_name):
         db_user = models.User(name=name,last_name=last_name)
         db_session.add(db_user)
