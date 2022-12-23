@@ -29,3 +29,10 @@ class UserOut(User):
 class GroupsOut(Groups):
     id:int
     users: List[User]
+
+
+
+# para pasar una lista de grupos (quizás le podría incluir un id)
+class listaFK(BaseModel):
+    groups:List[int]
+

@@ -22,7 +22,7 @@ app = FastAPI()
 # rutas
 router = APIRouter()
 
-app.include_router(auth_routes.router,tags=['auth'])
+app.include_router(auth_routes.router)
 app.include_router(dep_routes.router,tags=['departments'])
 app.include_router(staff_routes.router)
 

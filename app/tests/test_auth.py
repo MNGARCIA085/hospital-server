@@ -252,14 +252,6 @@ def test_edit_groups_to_user(client,add_user,add_group,add_groups_user):
     group_three = add_group(name='grupo3')
     group_four = add_group(name='grupo4')
     nuevosGrupos = [group_three.id, group_four.id]
-
-
-    print(user.id)
-    print(nuevosGrupos)
-
-    aux = f"/auth/userAndGroups?user_id={user.id}"
-    print(aux)
-
     
     # WHEN
     response = client.put(
@@ -274,43 +266,13 @@ def test_edit_groups_to_user(client,add_user,add_group,add_groups_user):
 
     # THEN
     assert response.status_code == 201
-    assert data['Groups'] == listaGroups
+    assert data['Groups']['groups'] == nuevosGrupos
 
 
 
 
-# delete groups per user
-
-
-
-
-
-
-
-
-
-
-
-
-# 1,2,3
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# obs: no es bueno poner req.body en un delete (desaconsejado)
+# dilema: cómo borrar varios a la vez (un patch puede estar bien)
 
 
 

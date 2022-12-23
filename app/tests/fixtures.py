@@ -40,15 +40,3 @@ def add_groups_user(db_session):
 
 
 
-"""
-db_user = models.User(**user.dict())
-        db.add(db_user)
-        db.flush()
-        u = db_user.id
-        for g in groups:
-            aux = get_group_by_id(g,db)
-            if aux:
-                db_item = models.UserGroups(user_id=u,group_id=g)
-                db.add(db_item)
-        db.commit()
-"""
